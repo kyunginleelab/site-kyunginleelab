@@ -128,13 +128,13 @@ export default function LegalDocView({
   appName,
   appHref,
   doc,
-  sibling,
+  siblings = [],
 }: {
   appName: string;
   appHref: string;
   doc: LegalDoc;
-  /** 함께 볼 문서 링크 (개인정보처리방침 ↔ 계정 삭제 안내) */
-  sibling?: { label: string; href: string };
+  /** 함께 볼 문서 링크 (개인정보처리방침 · 계정 삭제 안내 · 이용약관) */
+  siblings?: { label: string; href: string }[];
 }) {
   return (
     <article className="mx-auto max-w-3xl px-6 pb-24 pt-14 sm:pt-20">
@@ -156,15 +156,20 @@ export default function LegalDocView({
         ))}
       </div>
 
-      {sibling && (
+      {siblings.length > 0 && (
         <div className="mt-16">
           <div className="hairline" />
-          <Link
-            href={sibling.href}
-            className="mt-6 inline-block text-sm font-semibold text-accent-ink transition-opacity hover:opacity-80"
-          >
-            {sibling.label} →
-          </Link>
+          <div className="mt-6 flex flex-wrap gap-x-8 gap-y-3">
+            {siblings.map((s) => (
+              <Link
+                key={s.href}
+                href={s.href}
+                className="text-sm font-semibold text-accent-ink transition-opacity hover:opacity-80"
+              >
+                {s.label} →
+              </Link>
+            ))}
+          </div>
         </div>
       )}
     </article>

@@ -19,46 +19,85 @@ export const metadata: Metadata = {
 const [emailUser, emailDomain] = site.email.split("@");
 
 // 앱에서 다루는 정보 — 각 앱의 개별 방침과 어긋나지 않게 "기기 내 저장"을 기본으로 둔다.
+// 회사 공통 문서이므로 앱별 세부(항목·보유 기간·수탁자)는 각 앱의 방침이 우선한다.
 const appData = [
   {
     kind: "계정 정보",
     items: "로그인에 사용한 Google 계정 이메일, 계정 식별자",
     where: "서버 (Google Firebase)",
-    why: "로그인, 구독 상태 확인",
+    why: "로그인, 구독·체험 상태 확인, 삭제 요청 시 본인 확인",
+    keep: "계정 삭제 시 즉시 파기",
   },
   {
     kind: "구독·이용 정보",
-    items: "구독 상태, 결제 식별 정보, 유료 기능 사용 횟수",
+    items: "구독 상태, 결제 식별 정보(구매 토큰·상품 ID), 유료 기능 사용 횟수",
     where: "서버 (Google Firebase · Google Play)",
-    why: "유료 서비스 제공 및 결제 관리",
+    why: "유료 서비스 제공, 결제 확인·복원, 이용 한도 관리",
+    keep: "계정 삭제 시 즉시 파기",
   },
   {
     kind: "이용자가 기록한 콘텐츠",
-    items: "식사 기록, 사진, 통계, 목표·프로필 등 앱 안에서 만든 데이터",
+    items: "식사 기록, 사진, 통계, 목표·프로필, 녹음, 출생 정보 등 앱 안에서 만든 데이터",
     where: "이용자 기기 내부에만 저장 (서버로 전송하지 않음)",
     why: "앱 기능 제공",
+    keep: "앱 삭제 시 함께 삭제",
   },
   {
-    kind: "AI 분석 입력",
-    items: "분석을 요청한 사진 1장",
-    where: "분석 순간에만 전송, 결과 반환 후 즉시 폐기 (서버 미저장)",
-    why: "사진 분석 기능 제공",
+    kind: "AI 기능 입력",
+    items: "분석·생성을 요청한 사진, 음성, 텍스트",
+    where: "처리 순간에만 전송, 처리 후 지체 없이 파기 (보관 기간은 앱별 방침에 명시)",
+    why: "AI 분석·생성 기능 제공",
+    keep: "처리 즉시 또는 앱별 방침의 기간",
   },
   {
-    kind: "자동 수집 정보",
-    items: "기기 모델, OS 버전, 앱 버전, 오류 로그",
-    where: "서버 (오류 분석 도구)",
-    why: "오류 분석 및 품질 개선",
+    kind: "서버 운영 로그",
+    items: "계정 식별자, 요청 시각, 처리 결과·오류 코드",
+    where: "서버 (Google Cloud Logging)",
+    why: "장애 대응, 부정 이용 방지, 비용 관리",
+    keep: "30일 후 자동 삭제",
+  },
+  {
+    kind: "오류·사용 통계 (일부 앱에 한함)",
+    items: "기기 모델, OS 버전, 앱 버전, 오류 로그, 화면 사용 통계",
+    where: "서버 (Google Firebase Crashlytics·Analytics)",
+    why: "오류 분석 및 품질 개선 — 해당 여부는 각 앱의 방침에 명시",
+    keep: "수집일로부터 최대 90일",
   },
 ];
 
 const processors = [
   {
-    name: "Google LLC — Firebase",
-    task: "회원 인증, 구독 상태·사용량 저장, 오류 분석",
+    name: "Google LLC — Firebase (Authentication·Firestore·Cloud Functions·App Check)",
+    task: "회원 인증, 구독 상태·사용량 저장, 서버 기능 실행, 앱 무결성 검증. 데이터베이스와 서버 기능은 서울 리전, 인증은 Google 글로벌 인프라(미국 등)",
   },
-  { name: "Google LLC — Gemini API", task: "사진 분석 (전송 후 즉시 폐기)" },
-  { name: "Google LLC — Google Play", task: "인앱 결제(구독) 처리" },
+  {
+    name: "Google LLC — Gemini API",
+    task: "사진·텍스트 AI 분석 (회사 서버는 즉시 폐기, Google은 약관에 따라 남용 감지 목적으로 제한된 기간 보관 가능). 미국 등",
+  },
+  {
+    name: "Google LLC — Google Play",
+    task: "인앱 결제(구독) 처리, 영수증 검증. 회사는 카드 정보를 받지 않음. 미국 등",
+  },
+  {
+    name: "Google LLC — Firebase Crashlytics·Analytics (일부 앱)",
+    task: "오류 보고와 사용 통계. 미국 등",
+  },
+  {
+    name: "Cloudflare, Inc.",
+    task: "이 웹사이트의 호스팅과 전송. 접속 로그(IP 주소 등)를 보안 목적으로 일시 처리. 미국 등",
+  },
+];
+
+const remedies = [
+  { name: "개인정보분쟁조정위원회", tel: "1833-6972", url: "https://www.kopico.go.kr" },
+  { name: "개인정보침해신고센터", tel: "국번 없이 118", url: "https://privacy.kisa.or.kr" },
+  { name: "대검찰청 사이버수사과", tel: "1301", url: "https://www.spo.go.kr" },
+  { name: "경찰청 사이버수사국", tel: "182", url: "https://ecrm.police.go.kr" },
+];
+
+const history = [
+  "2026년 9월 13일 — 제정",
+  "2026년 11월 15일 — 개정 (2026년 11월 8일 공고). 보유 기간, 처리 위탁·국외 이전 세부, 안전성 확보 조치, 권익침해 구제 절차를 보완하고 AI 기능 입력·서버 운영 로그 항목을 명시",
 ];
 
 // 앱별 방침 — 사이트 안 문서(legal)가 있으면 그 링크, 없으면 외부 링크
@@ -71,6 +110,8 @@ const appPolicies = apps.flatMap((app) => [
     : []),
   ...(app.legalLinks ?? []).map((l) => ({ app: app.name, ...l })),
 ]);
+
+const linkCls = "text-accent-ink underline decoration-line underline-offset-4";
 
 export default function PrivacyPage() {
   return (
@@ -104,7 +145,10 @@ export default function PrivacyPage() {
           <p>
             회사 웹사이트는 회원가입, 쿠키, 방문 분석 도구를 사용하지 않으며
             개인정보를 수집하지 않습니다. 이메일로 문의를 보내신 경우 발신
-            이메일 주소와 문의 내용을 답변 목적으로만 보관합니다.
+            이메일 주소와 문의 내용을 답변 목적으로만 보관하며, 소비자 불만·분쟁
+            처리에 해당하는 기록은 전자상거래법에 따라 3년간 보관합니다.
+            웹사이트를 제공하는 호스팅 사업자(Cloudflare)가 보안 목적으로 접속
+            로그를 일시 처리할 수 있습니다.
           </p>
         </section>
 
@@ -112,16 +156,19 @@ export default function PrivacyPage() {
           <h2>2. 앱에서 수집하는 정보와 저장 위치</h2>
           <p>
             회사의 앱은 이용자가 만든 기록을 기기 안에만 두는 것을 원칙으로
-            하며, 서버에는 서비스 운영에 꼭 필요한 최소한의 정보만 저장합니다.
+            하며, 서버에는 로그인·구독·이용 한도처럼 서비스 운영에 꼭 필요한
+            최소한의 정보만 저장합니다. 이름·전화번호·주소는 받지 않으며,
+            광고 식별자를 수집하지 않고 광고를 싣지 않습니다.
           </p>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] border-collapse text-sm">
+            <table className="w-full min-w-[720px] border-collapse text-sm">
               <thead>
                 <tr className="border-b border-line text-left text-ink">
                   <th className="py-2 pr-4 font-semibold">구분</th>
                   <th className="py-2 pr-4 font-semibold">항목</th>
                   <th className="py-2 pr-4 font-semibold">저장 위치</th>
-                  <th className="py-2 font-semibold">목적</th>
+                  <th className="py-2 pr-4 font-semibold">목적</th>
+                  <th className="py-2 font-semibold">보유 기간</th>
                 </tr>
               </thead>
               <tbody>
@@ -130,7 +177,8 @@ export default function PrivacyPage() {
                     <td className="py-3 pr-4 font-medium text-ink">{r.kind}</td>
                     <td className="py-3 pr-4">{r.items}</td>
                     <td className="py-3 pr-4">{r.where}</td>
-                    <td className="py-3">{r.why}</td>
+                    <td className="py-3 pr-4">{r.why}</td>
+                    <td className="py-3">{r.keep}</td>
                   </tr>
                 ))}
               </tbody>
@@ -142,8 +190,9 @@ export default function PrivacyPage() {
           <h2>3. 개인정보의 이용 목적</h2>
           <ul>
             <li>회원 식별과 로그인 등 서비스 제공 및 운영</li>
-            <li>유료 서비스(구독) 제공, 결제 확인 및 이용 한도 관리</li>
-            <li>서비스 오류 분석 및 품질 개선</li>
+            <li>유료 서비스(구독) 제공, 결제 확인·복원 및 이용 한도 관리</li>
+            <li>AI 분석·생성 기능 제공</li>
+            <li>서비스 장애 대응, 부정 이용 방지 및 품질 개선</li>
             <li>문의 응대 및 공지사항 전달</li>
           </ul>
         </section>
@@ -153,13 +202,15 @@ export default function PrivacyPage() {
           <ul>
             <li>기기 내부에 저장된 데이터: 앱을 삭제하면 함께 삭제됩니다.</li>
             <li>
-              서버에 저장된 데이터: 앱 내 계정 삭제 시 즉시 삭제되며, 별도
-              요청 시 영업일 기준 7일 이내에 삭제합니다.
+              서버에 저장된 데이터: 앱 내 계정 삭제 시 즉시 삭제되며, 이메일
+              요청 시 본인 확인 후 영업일 기준 7일 이내에 삭제합니다. 서버 운영
+              로그는 30일 후 자동 삭제됩니다.
             </li>
             <li>
               법령에 따라 보존이 필요한 경우 해당 기간 동안 보관합니다 —
               계약·청약철회 및 대금결제 기록 5년, 소비자 불만·분쟁처리 기록
-              3년 (전자상거래법).
+              3년 (전자상거래법). 결제 기록은 Google Play 결제 시스템의 주문
+              내역으로 관리됩니다.
             </li>
           </ul>
         </section>
@@ -167,9 +218,12 @@ export default function PrivacyPage() {
         <section className="space-y-3">
           <h2>5. 처리 위탁 및 국외 이전</h2>
           <p>
-            회사는 서비스 제공을 위해 아래 사업자에 개인정보 처리를 위탁하며,
-            수탁자의 서버가 국외(미국 등)에 위치하여 개인정보가 국외로 이전될 수
-            있습니다.
+            회사는 자체 서버를 두지 않고 아래 사업자의 클라우드 서비스를 이용해
+            앱과 웹사이트를 운영하며, 이에 따라 개인정보 처리를 위탁합니다.
+            일부 수탁자의 설비가 국외(미국 등)에 있어 개인정보가 국외로
+            이전될 수 있으며, 이전은 각 기능을 사용하는 시점에 암호화된
+            통신(HTTPS)으로 이루어집니다. 이전 항목·보유 기간 등 세부 사항은
+            각 앱의 방침에 적습니다.
           </p>
           <ul>
             {processors.map((p) => (
@@ -178,23 +232,34 @@ export default function PrivacyPage() {
               </li>
             ))}
           </ul>
+          <p>
+            국외 이전을 원하지 않으시면 로그인이 필요한 기능과 AI 기능을 사용하지
+            않으면 됩니다. 이 경우 해당 기능과 구독 서비스는 이용할 수 없습니다.
+          </p>
         </section>
 
         <section className="space-y-3">
           <h2>6. 제3자 제공</h2>
           <p>
-            회사는 위 위탁 사항 외에 이용자의 개인정보를 제3자에게 제공하지
-            않습니다. 다만 이용자가 사전에 동의한 경우 또는 법령에 근거한
-            요청이 있는 경우는 예외로 합니다.
+            회사는 위 위탁 사항 외에 이용자의 개인정보를 제3자에게 제공하거나
+            판매하지 않으며, 광고·마케팅 목적으로 이용하지 않습니다. 다만
+            이용자가 별도로 동의한 경우 또는 법령에 근거한 적법한 요청이 있는
+            경우는 예외로 합니다.
           </p>
         </section>
 
         <section className="space-y-3">
           <h2>7. 이용자의 권리와 행사 방법</h2>
           <p>
-            이용자는 언제든지 자신의 개인정보를 조회·정정·삭제할 수 있습니다.
-            앱 설정의 계정 삭제 기능을 이용하거나, 아래 문의처로 요청하시면
-            지체 없이 처리합니다.
+            이용자는 언제든지 자신의 개인정보에 대해 열람·정정·삭제·처리정지를
+            요구하고 동의를 철회할 수 있습니다. 앱 설정의 계정 삭제 기능을
+            이용하거나 아래 문의처로 요청하시면 지체 없이, 늦어도 10일 이내에
+            처리하고 결과를 알려 드립니다. 법정대리인이나 위임받은 사람도 요청할
+            수 있으며, 이 경우 확인 서류를 요청할 수 있습니다.
+          </p>
+          <p>
+            회사의 앱은 만 14세 미만 아동을 대상으로 하지 않으며, 만 14세 미만
+            아동의 개인정보를 의도적으로 수집하지 않습니다.
           </p>
         </section>
 
@@ -207,33 +272,82 @@ export default function PrivacyPage() {
         </section>
 
         <section className="space-y-3">
-          <h2>9. 개인정보 보호책임자 및 문의처</h2>
+          <h2>9. 개인정보의 안전성 확보 조치</h2>
           <ul>
-            <li>개인정보 보호책임자: {site.privacy.officer}</li>
+            <li>모든 통신은 HTTPS로 암호화됩니다.</li>
+            <li>
+              서버 기능은 로그인과 앱 무결성 검증(Firebase App Check)을 통과한
+              정상 앱의 요청만 처리합니다.
+            </li>
+            <li>
+              데이터베이스 보안 규칙으로 앱에서의 쓰기를 차단하고 읽기는 본인
+              데이터로 제한합니다.
+            </li>
+            <li>
+              API 키 등 비밀 정보는 서버 비밀 저장소에 보관하며 앱에 포함하지
+              않습니다.
+            </li>
+            <li>수집 항목을 최소화하고 운영 로그는 30일 후 자동 삭제합니다.</li>
+            <li>개인정보에 접근할 수 있는 사람을 개인정보 보호책임자로 한정합니다.</li>
+          </ul>
+        </section>
+
+        <section className="space-y-3">
+          <h2>10. 자동 수집 장치</h2>
+          <p>
+            웹사이트는 쿠키와 방문 분석 도구를 사용하지 않습니다. 앱은 광고
+            식별자를 수집하지 않으며, 오류 보고·사용 통계 SDK는 일부 앱에서만
+            사용하고 해당 여부를 각 앱의 방침에 명시합니다.
+          </p>
+        </section>
+
+        <section className="space-y-3">
+          <h2>11. 개인정보 보호책임자 및 문의처</h2>
+          <ul>
+            <li>개인정보 보호책임자: {site.privacy.officer} (대표)</li>
             <li>
               이메일:{" "}
               <EmailLink
                 user={emailUser}
                 domain={emailDomain}
                 showAddress
-                className="text-accent-ink underline decoration-line underline-offset-4"
+                className={linkCls}
               >
                 이메일 문의 (JS 필요)
               </EmailLink>
             </li>
+            <li>
+              상호: {site.name}({site.legalNameEn}) · 사업자등록번호{" "}
+              {site.business.registrationNumber}
+              {site.business.address && ` · ${site.business.address}`}
+            </li>
           </ul>
-          <p>
-            개인정보 침해에 대한 신고나 상담이 필요한 경우 개인정보침해신고센터
-            (privacy.kisa.or.kr, 국번 없이 118)에 문의할 수 있습니다.
-          </p>
+          <p>개인정보 침해에 대한 신고나 상담이 필요하면 다음 기관에 문의할 수 있습니다.</p>
+          <ul>
+            {remedies.map((r) => (
+              <li key={r.name}>
+                {r.name} ({r.tel},{" "}
+                <a href={r.url} className={linkCls} rel="noopener">
+                  {r.url.replace("https://", "")}
+                </a>
+                )
+              </li>
+            ))}
+          </ul>
         </section>
 
         <section className="space-y-3">
-          <h2>10. 방침의 변경</h2>
+          <h2>12. 방침의 변경</h2>
           <p>
-            본 방침의 내용이 변경되는 경우 시행일 최소 7일 전에 웹사이트를 통해
+            본 방침의 내용이 변경되는 경우 시행일 최소 7일 전(수집 항목·목적
+            등 이용자 권리에 중요한 변경은 30일 전)에 웹사이트를 통해
             공지합니다.
           </p>
+          <ul>
+            {history.map((h) => (
+              <li key={h}>{h}</li>
+            ))}
+          </ul>
         </section>
 
         {appPolicies.length > 0 && (
@@ -242,10 +356,7 @@ export default function PrivacyPage() {
             <ul>
               {appPolicies.map((l) => (
                 <li key={l.url}>
-                  <a
-                    href={l.url}
-                    className="text-accent-ink underline decoration-line underline-offset-4"
-                  >
+                  <a href={l.url} className={linkCls}>
                     {l.app} — {l.label}
                   </a>
                 </li>

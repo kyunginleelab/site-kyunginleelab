@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { apps } from "@/content/apps";
-import { LEGAL_DOC_LABELS, LEGAL_DOC_SLUGS, type LegalDocKey } from "@/content/legal";
+import { LEGAL_DOC_LABELS, LEGAL_DOC_SLUGS, legalDocKeys, type LegalDocKey } from "@/content/legal";
 import LegalDocView from "@/components/legal-doc";
 import JsonLd, { breadcrumb } from "@/components/json-ld";
 import { openGraph } from "@/lib/seo";
@@ -11,12 +11,13 @@ import { site } from "@/site.config";
 const keyBySlug: Record<string, LegalDocKey> = {
   [LEGAL_DOC_SLUGS.privacy]: "privacy",
   [LEGAL_DOC_SLUGS.deleteAccount]: "deleteAccount",
+  [LEGAL_DOC_SLUGS.terms]: "terms",
 };
 
 export function generateStaticParams() {
   return apps
     .filter((a) => a.legal)
-    .flatMap((a) => Object.values(LEGAL_DOC_SLUGS).map((doc) => ({ slug: a.slug, doc })));
+    .flatMap((a) => legalDocKeys(a.legal!).map((k) => ({ slug: a.slug, doc: LEGAL_DOC_SLUGS[k] })));
 }
 
 export const dynamicParams = false;
@@ -26,8 +27,9 @@ type Props = { params: Promise<{ slug: string; doc: string }> };
 function resolve(slug: string, doc: string) {
   const app = apps.find((a) => a.slug === slug);
   const key = keyBySlug[doc];
-  if (!app?.legal || !key) return null;
-  return { app, key, legal: app.legal[key] };
+  const legal = app?.legal?.[key];
+  if (!app?.legal || !key || !legal) return null;
+  return { app, key, legal };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -52,7 +54,9 @@ export default async function AppLegalPage({ params }: Props) {
   const r = resolve(slug, doc);
   if (!r) notFound();
 
-  const otherKey: LegalDocKey = r.key === "privacy" ? "deleteAccount" : "privacy";
+  const siblings = legalDocKeys(r.app.legal!)
+    .filter((k) => k !== r.key)
+    .map((k) => ({ label: LEGAL_DOC_LABELS[k], href: `/${slug}/${LEGAL_DOC_SLUGS[k]}/` }));
   return (
     <>
       <JsonLd
@@ -66,10 +70,7 @@ export default async function AppLegalPage({ params }: Props) {
         appName={r.app.name}
         appHref={`/${slug}/`}
         doc={r.legal}
-        sibling={{
-          label: LEGAL_DOC_LABELS[otherKey],
-          href: `/${slug}/${LEGAL_DOC_SLUGS[otherKey]}/`,
-        }}
+        siblings={siblings}
       />
     </>
   );

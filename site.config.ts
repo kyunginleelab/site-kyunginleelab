@@ -35,7 +35,7 @@ export const site = {
     "https://www.youtube.com/@kyunginleelab",
   ] as readonly string[],
   privacy: {
-    effectiveDate: "2026년 9월 13일",
+    effectiveDate: "2026년 11월 15일",
     officer: "이경인",
   },
   seo: {

@@ -28,17 +28,26 @@ export type LegalDoc = {
 export type AppLegal = {
   privacy: LegalDoc;
   deleteAccount: LegalDoc;
+  /** 유료 구독이 있는 앱만 둔다 — /<slug>/terms/ */
+  terms?: LegalDoc;
 };
 
 /** URL 조각 ↔ 문서 키 */
 export const LEGAL_DOC_SLUGS = {
   privacy: "privacy",
   deleteAccount: "delete-account",
+  terms: "terms",
 } as const;
 
 export const LEGAL_DOC_LABELS = {
   privacy: "개인정보처리방침",
   deleteAccount: "계정 삭제 안내",
+  terms: "이용약관",
 } as const;
 
 export type LegalDocKey = keyof AppLegal;
+
+/** 앱이 실제로 가진 문서 키만, 표시 순서대로 */
+export function legalDocKeys(legal: AppLegal): LegalDocKey[] {
+  return (Object.keys(LEGAL_DOC_SLUGS) as LegalDocKey[]).filter((k) => legal[k]);
+}

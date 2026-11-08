@@ -224,6 +224,11 @@ export default async function AppPage({ params }: Props) {
                 <Link href={`/${app.slug}/delete-account/`} className={legalPill}>
                   계정 삭제 안내
                 </Link>
+                {app.legal.terms && (
+                  <Link href={`/${app.slug}/terms/`} className={legalPill}>
+                    이용약관
+                  </Link>
+                )}
               </>
             )}
             {app.legalLinks?.map((l) => (

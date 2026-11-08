@@ -10,7 +10,7 @@ import PageFade from "@/components/page-fade";
 
 // 검색 결과 요약문 — 브랜드(국문·영문)가 들어가야 "경인리랩" 검색에 걸린다.
 // 네이버 권장에 맞춰 80자 이내로 고정 (앱 이름은 각 제품 페이지가 맡는다)
-const description = `${site.name}(${site.nameEn})은 데이터를 모으지 않는 모바일 앱을 만드는 수원의 소프트웨어 스튜디오입니다.`;
+const description = `${site.name}(${site.nameEn})은 기록을 서버가 아닌 사용자 기기에 두는 모바일 앱을 만드는 수원의 소프트웨어 스튜디오입니다.`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
