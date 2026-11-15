@@ -49,9 +49,14 @@ export const apps: AppEntry[] = [
     tagline: "사진 한 장으로 기록하는 칼로리",
     short:
       "식사 사진 한 장이면 끝. AI가 칼로리와 탄단지를 자동으로 계산해 기록해요.",
-    status: "coming-soon",
+    status: "live",
     featured: true,
-    keywords: ["칼로리", "식단", "다이어트", "사진", "음식", "영양", "탄단지", "건강", "칼로스냅"],
+    playUrl: "https://play.google.com/store/apps/details?id=com.calosnap.calosnap",
+    keywords: [
+      "칼로리", "칼로리 계산", "칼로리 계산기", "식단", "식단 기록", "식단 관리",
+      "다이어트", "사진", "음식", "영양", "탄단지", "건강", "칼로스냅",
+      "calorie counter", "AI",
+    ],
     screens: [
       { file: "screen-1.webp", alt: "CaloSnap 홈 화면 — 오늘의 칼로리 링" },
       { file: "screen-3.webp", alt: "AI 분석 결과 — 사진 위 음식 태그와 칼로리 카드" },

@@ -19,6 +19,15 @@ const legalPill =
 
 export const dynamicParams = false;
 
+/**
+ * 사이트에서 나간 설치를 Play Console 의 획득 보고서(UTM 캠페인)에서 따로 세기 위한
+ * install referrer. 구조화 데이터의 installUrl 은 깨끗한 주소를 그대로 쓴다.
+ */
+function withReferrer(playUrl: string, slug: string): string {
+  const referrer = `utm_source=kyunginleelab.com&utm_medium=website&utm_campaign=${slug}_app_page`;
+  return `${playUrl}${playUrl.includes("?") ? "&" : "?"}referrer=${encodeURIComponent(referrer)}`;
+}
+
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -103,7 +112,7 @@ export default async function AppPage({ params }: Props) {
             <div className="mt-8">
               {app.status === "live" && app.playUrl ? (
                 <a
-                  href={app.playUrl}
+                  href={withReferrer(app.playUrl, app.slug)}
                   className="inline-block rounded-full bg-accent px-8 py-3.5 font-semibold text-white transition-opacity hover:opacity-85"
                 >
                   Google Play에서 받기

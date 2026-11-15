@@ -33,6 +33,8 @@ export const site = {
   profiles: [
     "https://github.com/kyunginleelab",
     "https://www.youtube.com/@kyunginleelab",
+    // Google Play 개발자 페이지 (2026-11-15 CaloSnap 공개 출시로 생김)
+    "https://play.google.com/store/apps/developer?id=%EA%B2%BD%EC%9D%B8%EB%A6%AC%EB%9E%A9",
   ] as readonly string[],
   privacy: {
     effectiveDate: "2026년 11월 15일",
