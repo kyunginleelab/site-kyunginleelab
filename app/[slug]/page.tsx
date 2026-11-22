@@ -124,6 +124,19 @@ export default async function AppPage({ params }: Props) {
                 </span>
               )}
             </div>
+            {/* 영문 페이지가 있는 앱은 버튼 아래에 그리로 가는 링크를 둔다 (영문 페이지에도 국문으로 오는 링크가 있다) */}
+            {app.enPath && (
+              <p className="mt-4 text-sm text-muted">
+                <Link
+                  href={app.enPath}
+                  hrefLang="en"
+                  lang="en"
+                  className="underline underline-offset-4 transition-colors hover:text-ink"
+                >
+                  English
+                </Link>
+              </p>
+            )}
           </Reveal>
         </div>
       </section>
