@@ -41,14 +41,14 @@ const legalPill =
 
 export const metadata: Metadata = {
   title: en.title,
-  description: en.short,
+  description: en.metaDescription,
   // 루트 layout 의 keywords 는 국문이다 — 영문 페이지는 영문 등록정보에 나오는 말로 바꾼다
   keywords: en.keywords,
   alternates: { canonical: en.path, languages: hreflang(app) },
   openGraph: {
     ...openGraph({
       title: en.title,
-      description: en.short,
+      description: en.metaDescription,
       path: en.path,
       image: {
         url: versioned(`/apps/${app.slug}/${en.ogImage.file}`),
@@ -67,9 +67,10 @@ export default function CaloSnapEnglishPage() {
     "@type": "SoftwareApplication",
     "@id": `${site.url}${en.path}#app`,
     name: app.name,
-    description: en.short,
+    description: en.metaDescription,
     url: `${site.url}${en.path}`,
     image: `${site.url}${appIcon(app)}`,
+    inLanguage: "en",
     applicationCategory: app.category ?? "HealthApplication",
     operatingSystem: "Android",
     installUrl: playUrl,
@@ -78,9 +79,22 @@ export default function CaloSnapEnglishPage() {
     publisher: { "@id": `${site.url}/#organization` },
   };
 
+  // 화면의 FAQ 와 같은 배열에서 만든다 — 구조화 데이터와 보이는 글이 어긋나면 안 된다
+  const faqLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    inLanguage: "en",
+    mainEntity: en.faq.items.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+
   return (
     <div lang="en">
       <JsonLd data={appLd} />
+      <JsonLd data={faqLd} />
       <JsonLd
         data={breadcrumb(site.url, [
           { name: "Home", path: "/" },
@@ -100,12 +114,13 @@ export default function CaloSnapEnglishPage() {
               className="mx-auto h-24 w-24 rounded-[24px] border border-line shadow-sm sm:h-28 sm:w-28 sm:rounded-[28px]"
               priority
             />
+            {/* 한 줄 설명을 h1 안에 둔다 — 보이는 모양은 국문 페이지와 같고, 제목이 "CaloSnap AI Calorie Counter" 로 읽힌다 */}
             <h1 className="mt-8 text-4xl font-extrabold tracking-tight sm:text-5xl">
-              {app.name}
+              {app.name}{" "}
+              <span className="mt-3 block text-lg font-medium tracking-normal text-muted sm:text-xl">
+                {en.tagline}
+              </span>
             </h1>
-            <p className="mt-3 text-lg font-medium text-muted sm:text-xl">
-              {en.tagline}
-            </p>
             <p className="mx-auto mt-5 max-w-md leading-relaxed text-muted">
               {en.short}
             </p>
@@ -216,6 +231,25 @@ export default function CaloSnapEnglishPage() {
             <p className="mx-auto mt-8 max-w-2xl text-center text-sm leading-relaxed text-muted">
               {en.pricing.note}
             </p>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* FAQ — 소개 페이지(app/about)의 FAQ 와 같은 모양 */}
+      <section className="band">
+        <div className="mx-auto max-w-3xl px-6 py-16 sm:py-20">
+          <Reveal>
+            <h2 className="mb-8 text-center text-2xl font-bold tracking-tight">
+              {en.faq.heading}
+            </h2>
+            <div className="space-y-7">
+              {en.faq.items.map((f) => (
+                <div key={f.q}>
+                  <h3 className="font-semibold">{f.q}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">{f.a}</p>
+                </div>
+              ))}
+            </div>
           </Reveal>
         </div>
       </section>

@@ -150,7 +150,10 @@ for (const url of urls) {
 
   if (!desc) note(url, "description 없음");
   else {
-    if (chars(desc) > 80) note(url, `description ${chars(desc)}자 — 네이버 권장 80자 초과`);
+    // 영문 페이지(/en/)는 구글이 기준이라 155자까지, 국문 페이지는 네이버 권장 80자
+    if (path.startsWith("/en/")) {
+      if (chars(desc) > 155) note(url, `description ${chars(desc)}자 — 구글에서 잘린다(155자)`);
+    } else if (chars(desc) > 80) note(url, `description ${chars(desc)}자 — 네이버 권장 80자 초과`);
     if (chars(desc) < 40) note(url, `description ${chars(desc)}자 — 너무 짧다`);
     const prev = seenDesc.get(desc);
     if (prev) note(url, `description 이 ${prev} 와 똑같다`);

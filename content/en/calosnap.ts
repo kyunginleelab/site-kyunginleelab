@@ -17,18 +17,29 @@ export const calosnapEn = {
   /** 이 페이지의 주소. content/apps.ts 의 enPath 가 이 값을 읽는다 */
   path: "/en/calosnap/",
 
-  // <title>·og:title 은 등록정보의 title, description 은 short 그대로
-  title: "CaloSnap: AI Calorie Counter",
+  // <title>·og:title — 등록정보의 title 에 "from a Photo" 를 붙였다. 영어로 이 앱을 찾는 말이
+  // "AI calorie counter" 와 "calorie counter from photo" 둘이라 제목에 둘 다 둔다.
+  // 사이트 이름이 뒤에 붙어도 60자를 넘지 않게 43자 안쪽으로.
+  title: "CaloSnap: AI Calorie Counter from a Photo",
   tagline: "AI Calorie Counter",
+  /** 히어로에 보이는 한 줄 — 등록정보의 short 그대로 */
   short:
     "Snap a meal, AI logs calories & protein. Your food diary and macro tracker.",
+  /**
+   * 검색 결과에 나오는 설명(meta description·og:description). 구글은 155자쯤에서 자르므로 그 안쪽.
+   * 국문 페이지는 네이버 권장(80자)에 맞추지만 영문 페이지는 구글이 기준이다.
+   */
+  metaDescription:
+    "AI calorie counter for Android. Snap a photo of your meal and get calories, carbs, protein and fat in seconds. Especially good with Korean and Asian food.",
   keywords: [
     "CaloSnap",
     "AI calorie counter",
     "photo calorie counter",
+    "calorie counter from photo",
     "calorie tracker",
     "food diary",
     "macro tracker",
+    "Korean food calories",
     "Kyungin LeeLab",
   ],
 
@@ -123,6 +134,46 @@ export const calosnapEn = {
       },
     ],
     note: "Lite and Premium are monthly or yearly subscriptions billed to your Google Play account. They renew automatically until you cancel, and you can cancel anytime in Google Play › Payments & subscriptions.",
+  },
+
+  /**
+   * 자주 묻는 질문 — 화면에 그대로 보이고 FAQPage 구조화 데이터로도 나간다.
+   * 사람들이 검색창에 치는 말("calorie counter from photo", "is it free", "iPhone")을 질문으로 삼았다.
+   * 답은 전부 이 파일의 다른 문구(= 영문 등록정보)에 이미 있는 사실만 다시 적은 것이다.
+   * 새 사실을 여기에만 적지 말 것.
+   */
+  faq: {
+    heading: "Frequently asked questions",
+    items: [
+      {
+        q: "How does CaloSnap count calories from a photo?",
+        a: "Take a photo of your meal or pick one from your gallery. AI recognizes each dish on the plate and estimates calories, carbs, protein and fat, with a portion in grams. Change the grams and every number recalculates.",
+      },
+      {
+        q: "Is CaloSnap free?",
+        a: "It's free to start. A 3-day free trial includes every Premium feature and 3 AI analyses a day. After the trial you get up to 10 AI analyses a month from a shared monthly free allowance, and manual entry, your food diary, calendar and trends stay free. Lite and Premium are optional subscriptions.",
+      },
+      {
+        q: "Does it recognize Korean and Asian food?",
+        a: "Yes. CaloSnap names a dish the way a menu would, such as bibimbap, tteokbokki, ramen, sushi or curry, not as a pile of ingredients. It is especially good with Korean and other Asian food, and it handles everyday meals like salads, sandwiches, burgers and pasta too.",
+      },
+      {
+        q: "How accurate is an AI calorie counter?",
+        a: "Calorie and nutrition values are AI estimates for everyday tracking, not medical advice. The portion is estimated from the photo, so you can adjust the grams, and if a food isn't recognized you can search by name or add it manually.",
+      },
+      {
+        q: "Is CaloSnap available on iPhone?",
+        a: "CaloSnap is available on Android only, through Google Play.",
+      },
+      {
+        q: "What happens to my meal photos?",
+        a: "Your meal log, stats, profile and photos stay on your phone. A photo is encrypted and sent only at the moment of analysis, and it is never stored on our server.",
+      },
+      {
+        q: "Which languages does CaloSnap support?",
+        a: "The app is available in 8 languages: English, Español, Português, Deutsch, Français, 日本語, हिन्दी and 한국어.",
+      },
+    ],
   },
 
   /** 법적 문서는 국문만 있다 — 번역하지 않고 국문 문서로 잇고 (Korean) 이라고 밝힌다 */

@@ -81,7 +81,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...apps
       .filter((app) => app.legal)
       .flatMap((app) =>
-        ["privacy", "delete-account"].map((doc) => ({
+        // 이용약관은 있는 앱에만 (없는 주소를 사이트맵에 넣으면 404 가 색인 오류로 잡힌다)
+        ["privacy", "delete-account", ...(app.legal?.terms ? ["terms"] : [])].map((doc) => ({
           url: `${site.url}/${app.slug}/${doc}/`,
           lastModified: now,
           changeFrequency: "monthly" as const,
