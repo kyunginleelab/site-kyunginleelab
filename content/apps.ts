@@ -14,6 +14,7 @@ import { calosnapLegal } from "./legal/calosnap";
 import { myvoiceLegal } from "./legal/myvoice";
 import { myoyeonLegal } from "./legal/myoyeon";
 import { infiniteStairsLegal } from "./legal/infinite-stairs";
+import { calosnapEn } from "./en/calosnap";
 
 export type AppEntry = {
   slug: string;
@@ -21,6 +22,8 @@ export type AppEntry = {
   tagline: string;
   short: string;
   status: "live" | "coming-soon";
+  /** 영문 페이지가 따로 있을 때 그 경로(예: "/en/calosnap/") — 국문·영문 페이지가 hreflang 으로 서로를 가리킨다 */
+  enPath?: string;
   /** 홈 상단 스크롤 쇼케이스 후보 중 서버 기본값으로 둘 앱 (접속마다 후보 중 랜덤으로 보여준다) */
   featured?: boolean;
   /** 홈 검색에서 이름·설명 외에 추가로 걸릴 말들 */
@@ -50,6 +53,7 @@ export const apps: AppEntry[] = [
     short:
       "식사 사진 한 장이면 끝. AI가 칼로리와 탄단지를 자동으로 계산해 기록해요.",
     status: "live",
+    enPath: calosnapEn.path,
     featured: true,
     playUrl: "https://play.google.com/store/apps/details?id=com.calosnap.calosnap",
     keywords: [
@@ -328,6 +332,18 @@ export const statusLabel: Record<AppEntry["status"], string> = {
 
 export function appIcon(app: AppEntry) {
   return `/apps/${app.slug}/icon.png`;
+}
+
+/**
+ * 영문 페이지가 있는 앱의 hreflang 묶음 (Metadata 의 alternates.languages). 없으면 undefined.
+ *
+ * 국문·영문 두 페이지가 **같은 묶음**을 실어야 한다 — 한쪽만 가리키면 검색엔진이 짝으로
+ * 보지 않고 무시한다. 그래서 두 페이지 모두 이 함수 하나를 부른다.
+ * x-default(한국어도 영어도 아닌 사용자)는 영문 페이지로 보낸다.
+ */
+export function hreflang(app: AppEntry) {
+  if (!app.enPath) return undefined;
+  return { ko: `/${app.slug}/`, en: app.enPath, "x-default": app.enPath };
 }
 
 const hasShowcase = (a: AppEntry) => !!(a.screens?.length && a.features?.length);

@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { site } from "@/site.config";
-import { apps, appIcon, statusLabel } from "@/content/apps";
+import { apps, appIcon, hreflang, statusLabel } from "@/content/apps";
 import { versioned, versionedScreens } from "@/content/asset-version";
 import { openGraph } from "@/lib/seo";
 import Reveal from "@/components/reveal";
@@ -38,7 +38,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description: app.short,
-    alternates: { canonical: `/${app.slug}/` },
+    // 영문 페이지가 있는 앱은 hreflang 으로 서로를 가리킨다 (없으면 languages 는 비어 태그가 안 나간다)
+    alternates: { canonical: `/${app.slug}/`, languages: hreflang(app) },
     openGraph: openGraph({
       title,
       description: app.short,

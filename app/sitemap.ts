@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { site } from "@/site.config";
 import { apps, appIcon, type AppEntry } from "@/content/apps";
+import { calosnapEn } from "@/content/en/calosnap";
 import { videos, videoThumbnail, videoUrl } from "@/content/videos";
 
 export const dynamic = "force-static";
@@ -65,6 +66,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
       images: appImages(app),
     })),
+    // 영문 앱 페이지 (지금은 CaloSnap 하나) — 아이콘은 국문 페이지와 같고 스크린샷·공유 카드는 영문판
+    {
+      url: abs(calosnapEn.path),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.9,
+      images: [
+        abs(`/apps/${calosnapEn.slug}/icon.png`),
+        ...calosnapEn.screens.map((s) => abs(`/apps/${calosnapEn.slug}/${s.file}`)),
+        abs(`/apps/${calosnapEn.slug}/${calosnapEn.ogImage.file}`),
+      ],
+    },
     ...apps
       .filter((app) => app.legal)
       .flatMap((app) =>
