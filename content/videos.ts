@@ -12,7 +12,11 @@ export type VideoEntry = {
   id: string;
   title: string;
   description: string;
-  /** ISO 8601 날짜 */
+  /**
+   * ISO 8601 날짜·시각 + 시간대 (예: 2026-09-19T03:41:03+09:00).
+   * 날짜만 적으면 구글 서치 콘솔이 "uploadDate 에 시간대 누락"으로 잡는다.
+   * 값은 유튜브 영상 페이지의 uploadDate 를 한국 시각으로 옮긴 것.
+   */
   uploadDate: string;
   /** ISO 8601 기간 — 33초면 PT33S */
   duration: string;
@@ -24,7 +28,7 @@ export const videos: VideoEntry[] = [
     title: "덜어냈습니다 — 경인리랩 브랜드 필름",
     description:
       "하루는 자꾸 쌓입니다. 앱은 많은데, 쓸수록 무거워지죠. 그래서 덜어냈습니다. 경인리랩이 앱을 만드는 기준을 담은 브랜드 필름입니다.",
-    uploadDate: "2026-09-19",
+    uploadDate: "2026-09-19T03:41:03+09:00",
     duration: "PT33S",
   },
   {
@@ -32,7 +36,7 @@ export const videos: VideoEntry[] = [
     title: "일상을 가볍게 — 경인리랩 소개",
     description:
       "쌓이는 하루에서 덜어내는 것을 택했습니다. 한 번의 동작, 그게 전부. 경인리랩 브랜드 타이포그래피 영상입니다.",
-    uploadDate: "2026-09-19",
+    uploadDate: "2026-09-19T03:16:11+09:00",
     duration: "PT16S",
   },
 ];
